@@ -20,7 +20,12 @@ cpdef ndarray[double, ndim=2] K_se(ndarray[double, ndim=1] Xi,\
                                    ndarray[double, ndim=1] Xj,\
                                    double lenscale,
                                    double sigvar):
-    """get a covariance matrix K using squared exponential kernel with
+    """cpdef ndarray[double, ndim=2] K_se(ndarray[double, ndim=1] Xi,\
+                                    ndarray[double, ndim=1] Xj,\
+                                    double lenscale,
+                                    double sigvar)
+
+    get a covariance matrix K using squared exponential kernel with
     lengthscale lenscale and signal variance sigvar for all pairs of
     input-space points in Xi and Xj"""
 
@@ -39,7 +44,12 @@ cpdef ndarray[double, ndim=1] sample(ndarray[double, ndim=1] X,
                                      ndarray[double, ndim=1] mu,
                                      ndarray[double, ndim=2] covmat,
                                      double noisevar2):
-    """sample over X given mean mu and covmat covmat"""
+    """cpdef ndarray[double, ndim=1] sample(ndarray[double, ndim=1] X,
+                                        ndarray[double, ndim=1] mu,
+                                        ndarray[double, ndim=2] covmat,
+                                        double noisevar2)
+
+    sample over X given mean mu and covmat covmat"""
     cdef int nI = X.shape[0]
     covmat += eye(nI) * noisevar2
     cdef ndarray[double, ndim=2] Lun = cholesky(covmat)
@@ -55,7 +65,14 @@ cpdef conditioned_mu(ndarray[double, ndim=1] X,
                    double lenscale,
                    double sigvar,
                    double noisevar2):
-    """condition on observations yObs at locations xObs,
+    """cpdef conditioned_mu(ndarray[double, ndim=1] X,
+                    ndarray[double, ndim=1] xObs,
+                    ndarray[double, ndim=1] yObs,
+                    double lenscale,
+                    double sigvar,
+                    double noisevar2)
+
+    condition on observations yObs at locations xObs,
     with prior defined by kf and mf, returning new mu and covmat over locs X"""
     cdef int nI = X.shape[0]
     cdef int nJ = xObs.shape[0]
@@ -77,6 +94,12 @@ cpdef ndarray[double, ndim=2] conditioned_covmat(ndarray[double, ndim=1] X,
                                                 double lenscale,
                                                 double sigvar,
                                                 double noisevar2):
+    """cpdef ndarray[double, ndim=2] conditioned_covmat(ndarray[double, ndim=1] X,
+                                                    ndarray[double, ndim=2] KX,
+                                                    ndarray[double, ndim=1] xObs,
+                                                    double lenscale,
+                                                    double sigvar,
+                                                    double noisevar2)"""
     cdef int nI = X.shape[0]
     cdef int nJ = xObs.shape[0]
 

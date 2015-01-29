@@ -1,5 +1,5 @@
-import pdb
 from ggplot import *
+import pdb
 # log-log plot
 def loglog(df, xfield, yfield, labs=None,\
            base=2, size=80, alpha=0.3, position='jitter'):
@@ -17,14 +17,3 @@ def loglog(df, xfield, yfield, labs=None,\
             if f is 'title':
                 ggp += labs(title=labs[f])
     return ggp
-
-# # density plot
-# ggp = ggplot(aes(x='fit', fill='factor(act)'), data=lsfitdf)
-# ggp +\
-#     geom_density(alpha=0.7) +\
-#     geom_vline(xintercept=[0.015625, 0.0625, 0.25], linetype='dashed') +\
-#     scale_x_log(base=2) +\
-#     labs(x='fit lengthscale',
-#          y='density',
-#          title='Subject Lengthscale Fits')
-

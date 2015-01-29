@@ -1,4 +1,4 @@
-from jbfunctions.jbgp import K_se, conditioned_mu, conditioned_covmat, sample
+from jbdrillfunctions.jbgp import K_se, conditioned_mu, conditioned_covmat, sample
 from numpy import abs, linspace, unique, zeros, array
 from matplotlib import pyplot as plt
 from numpy cimport ndarray

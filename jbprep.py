@@ -135,18 +135,3 @@ def enforceFieldTypes(df, fieldTypes):
 
     return df
 
-
-    # if type(ftype) is type: ftype0 = ftype # same type conv for every field
-    # elif type(ftype) is dict:  # diff type conversaion for each field
-    #     assert f in ftype, ('if using doftypes, each field in lonumberFields'
-    #                         ' must have corresponding key in ftype')
-    #     ftype0 = ftype[f]
-    # elif ftype is None: ftype0 = None  # no type conversion
-    # else: raise ValueError('ftype must be a type, a dict of types for '
-    #                        'each field, or None (for no type conversion)')
-
-    # if ftype0:  # list2scalar with type conversion
-    #     df[f] = df[f].apply(lambda l: np.array(l[0]).astype(ftype0))
-    # else:  # no type conversion
-    #     df[f] = df[f].apply(lambda l: np.array(l[0]))
-# return df
