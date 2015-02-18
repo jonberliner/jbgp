@@ -1,4 +1,12 @@
 from itertools import chain
+from datetime import datetime
+from matplotlib.pyplot import get_cmap
+
+
+def datetimestamp(delim='_'):
+    fmt = delim.join(['%Y', '%m', '%d', '%H', '%M'])
+    return datetime.now().strftime(fmt)
+
 
 def factors(n):
     result = []
@@ -14,3 +22,6 @@ def factors(n):
             return result
 
 
+def cmap_discrete(N, cmap):
+    cm = get_cmap(cmap)
+    return [cm(1.*i/N) for i in xrange(N)]
