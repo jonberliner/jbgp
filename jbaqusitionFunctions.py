@@ -7,6 +7,12 @@ from numpy.random import RandomState
 from scipy.stats import norm
 rng = RandomState()
 
+#TODO:
+#   decide if aqfcns should return value for every point in the domain, or only the chosen point
+#   need to make above point consistent bt functions
+#
+
+#FIXME: not yet tested
 def emep(domainbounds, xObs, yObs, lenscale, sigvar, noisevar2, xres, yres, ysdbounds):
     """expected value of the max expected value of the posterior"""
     out = {}
