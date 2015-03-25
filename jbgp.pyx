@@ -1,13 +1,15 @@
 from numpy import zeros, linspace, atleast_2d, dot, ones, eye, nan
 import numpy.random as rng
+from numpy.random import RandomState
+rng = RandomState()
 from numpy cimport ndarray
 from timeit import timeit
 from numpy.linalg import cholesky, pinv
 from sys import maxint
 import pdb
 
-cdef int seed = rng.randint(1000000)
-rng.seed(seed)
+# cdef int seed = rng.randint(1000000)
+# rng.seed(seed)
 
 
 cdef extern from "math.h":
@@ -16,15 +18,28 @@ cdef extern from "math.h":
     double sqrt(double a)
 
 
-cpdef ndarray[double, ndim=2] K_se(ndarray[double, ndim=1] Xi,\
-                                   ndarray[double, ndim=1] Xj,\
+cdef double norm2(ndarray[double, ndim=1] Xi,\
+                  ndarray[double, ndim=1] Xj):
+    cdef int i,j, Ni, Nj
+    cdef double norm
+    Ni = Xi.shape[0]
+    Nj = Xj.shape[0]
+    norm2 = 0.
+    for i in xrange(Ni):
+        for j in xrange(Nj):
+            norm2 += pow(Xi[i] - Xj[j], 2.)
+    return sqrt(norm2)
+
+
+cpdef ndarray[double, ndim=2] K_se(ndarray[double, ndim=2] Xi,\
+                                   ndarray[double, ndim=2] Xj,\
                                    double lenscale,
                                    double sigvar):
-    """cpdef ndarray[double, ndim=2] K_se(ndarray[double, ndim=1] Xi,\
-                                    ndarray[double, ndim=1] Xj,\
-                                    double lenscale,
-                                    double sigvar)
-
+    """
+    cpdef ndarray[double, ndim=2] K_se(ndarray[double, ndim=2] Xi,
+                                   ndarray[double, ndim=2] Xj,
+                                   double lenscale,
+                                   double sigvar)
     get a covariance matrix K using squared exponential kernel with
     lengthscale lenscale and signal variance sigvar for all pairs of
     input-space points in Xi and Xj"""
@@ -36,43 +51,36 @@ cpdef ndarray[double, ndim=2] K_se(ndarray[double, ndim=1] Xi,\
         for j in xrange(Nj):
             K[i,j] = pow(sigvar, 2.) *\
                      exp(-(1./(2.*pow(lenscale,2.))) *\
-                         pow(sqrt(pow(Xi[i] - Xj[j], 2.)), 2.))
+                         pow(norm2(Xi[i], Xj[j]), 2.))
     return K
 
 
-cpdef ndarray[double, ndim=1] sample(ndarray[double, ndim=1] X,
+cpdef ndarray[double, ndim=1] sample(ndarray[double, ndim=2] X,
                                      ndarray[double, ndim=1] mu,
                                      ndarray[double, ndim=2] covmat,
                                      double noisevar2):
-    """cpdef ndarray[double, ndim=1] sample(ndarray[double, ndim=1] X,
-                                        ndarray[double, ndim=1] mu,
-                                        ndarray[double, ndim=2] covmat,
-                                        double noisevar2)
-
-    sample over X given mean mu and covmat covmat"""
+    """sample over X given mean mu and covmat covmat"""
     cdef int nI = X.shape[0]
     covmat += eye(nI) * noisevar2
-    cdef ndarray[double, ndim=2] Lun = cholesky(covmat)
-    # draw samples with our shiny new posterior!
-    cdef ndarray[double, ndim=1] seeds = rng.randn(nI)
-    cdef ndarray[double, ndim=1] sample = (mu + dot(Lun, seeds))
+    cdef ndarray[double, ndim=1] sample
+    sample = rng.multivariate_normal(mu, covmat)
     return sample
+    # cdef int nI = X.shape[0]
+    # covmat += eye(nI) * noisevar2
+    # cdef ndarray[double, ndim=2] Lun = cholesky(covmat)
+    # # draw samples with our shiny new posterior!
+    # cdef ndarray[double, ndim=1] seeds = rng.randn(nI)
+    # cdef ndarray[double, ndim=1] sample = (mu + dot(Lun, seeds))
+    # return sample
 
 
-cpdef conditioned_mu(ndarray[double, ndim=1] X,
-                   ndarray[double, ndim=1] xObs,
-                   ndarray[double, ndim=1] yObs,
-                   double lenscale,
-                   double sigvar,
-                   double noisevar2):
-    """cpdef conditioned_mu(ndarray[double, ndim=1] X,
-                    ndarray[double, ndim=1] xObs,
-                    ndarray[double, ndim=1] yObs,
-                    double lenscale,
-                    double sigvar,
-                    double noisevar2)
-
-    condition on observations yObs at locations xObs,
+cpdef ndarray[double, ndim=1] conditioned_mu(ndarray[double, ndim=2] X,
+                                             ndarray[double, ndim=2] xObs,
+                                             ndarray[double, ndim=1] yObs,
+                                             double lenscale,
+                                             double sigvar,
+                                             double noisevar2):
+    """condition on observations yObs at locations xObs,
     with prior defined by kf and mf, returning new mu and covmat over locs X"""
     cdef int nI = X.shape[0]
     cdef int nJ = xObs.shape[0]
@@ -88,18 +96,12 @@ cpdef conditioned_mu(ndarray[double, ndim=1] X,
     return dot(dot(k.T, invKobs), yObs)  # exp val for points given obs
 
 
-cpdef ndarray[double, ndim=2] conditioned_covmat(ndarray[double, ndim=1] X,
+cpdef ndarray[double, ndim=2] conditioned_covmat(ndarray[double, ndim=2] X,
                                                 ndarray[double, ndim=2] KX,
-                                                ndarray[double, ndim=1] xObs,
+                                                ndarray[double, ndim=2] xObs,
                                                 double lenscale,
                                                 double sigvar,
                                                 double noisevar2):
-    """cpdef ndarray[double, ndim=2] conditioned_covmat(ndarray[double, ndim=1] X,
-                                                    ndarray[double, ndim=2] KX,
-                                                    ndarray[double, ndim=1] xObs,
-                                                    double lenscale,
-                                                    double sigvar,
-                                                    double noisevar2)"""
     cdef int nI = X.shape[0]
     cdef int nJ = xObs.shape[0]
 
