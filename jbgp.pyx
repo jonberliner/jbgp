@@ -59,7 +59,11 @@ cpdef ndarray[double, ndim=1] sample(ndarray[double, ndim=2] X,
                                      ndarray[double, ndim=1] mu,
                                      ndarray[double, ndim=2] covmat,
                                      double noisevar2):
-    """sample over X given mean mu and covmat covmat"""
+    """cpdef ndarray[double, ndim=1] sample(ndarray[double, ndim=2] X,
+                                         ndarray[double, ndim=1] mu,
+                                         ndarray[double, ndim=2] covmat,
+                                         double noisevar2):
+    sample over X given mean mu and covmat covmat"""
     cdef int nI = X.shape[0]
     covmat += eye(nI) * noisevar2
     cdef ndarray[double, ndim=1] sample
