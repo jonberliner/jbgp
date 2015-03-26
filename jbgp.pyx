@@ -80,7 +80,14 @@ cpdef ndarray[double, ndim=1] conditioned_mu(ndarray[double, ndim=2] X,
                                              double lenscale,
                                              double sigvar,
                                              double noisevar2):
-    """condition on observations yObs at locations xObs,
+    """cpdef ndarray[double, ndim=1] conditioned_mu(ndarray[double, ndim=2] X,
+                                                 ndarray[double, ndim=2] xObs,
+                                                 ndarray[double, ndim=1] yObs,
+                                                 double lenscale,
+                                                 double sigvar,
+                                                 double noisevar2)
+
+    condition on observations yObs at locations xObs,
     with prior defined by kf and mf, returning new mu and covmat over locs X"""
     cdef int nI = X.shape[0]
     cdef int nJ = xObs.shape[0]
