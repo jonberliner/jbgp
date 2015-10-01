@@ -6,6 +6,7 @@ setup(
     cmdclass = {'build_ext': build_ext},
     ext_modules = [
         Extension("jbgp", ["jbgp.pyx"]),
+        Extension("jbgp_1d", ["jbgp_1d.pyx"]),
         Extension("jbgp_fit", ["jbgp_fit.pyx"])
     ],
     include_dirs=[numpy.get_include()]

@@ -13,6 +13,7 @@ def sac(df, fcn, reducefield, groupfields=None, fcnlabel=None):
 
     if fcnlabel is None:
         fcnlabel = fcn.__name__
+    if not groupfields: groupfields=[]
     dfg = df.groupby(groupfields + [reducefield])  # condition here for melt
     # analysis run on every row in reducefield
     reduceddf = dfg.apply(fcn)

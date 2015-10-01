@@ -1,6 +1,6 @@
 from jb.jbdrill import jbload
 from pandas import DataFrame, merge, concat
-from numpy import log, pi, mean, linspace, zeros_like, diag, append,
+from numpy import log, pi, mean, linspace, zeros_like, diag, append
 from numpy import array as a
 from pylab import find
 from numpy.random import RandomState
@@ -56,17 +56,28 @@ def exploit(mu, domain):
             'xmax': xymax}
 
 
-def infomax(covmat, domain):
-    sd = diag(covmat)
-    cvXv = dot(covmat, sd)
-    infoGain = sum(cvXv, axis=0) # get col sums
-    iInfomax = infoGain.argmax()
+def infomax(sd, domain):
+    iInfomax = sd.argmax()
     xInfomax = domain[iInfoGain]
-    finfomax = infoGain[iInfomax]
+    finfomax = sd.max()
 
     return {'imax': iInfomax,
             'fmax': fInfomax,
             'xmax': xInfomax}
+
+
+# TODO: NOT YET WORKING
+# def infomax_new(covmat, domain):
+#     sd = diag(covmat)
+#     cvXv = dot(covmat, sd)
+#     infoGain = sum(cvXv, axis=0) # get col sums
+#     iInfomax = infoGain.argmax()
+#     xInfomax = domain[iInfoGain]
+#     finfomax = infoGain[iInfomax]
+
+#     return {'imax': iInfomax,
+#             'fmax': fInfomax,
+#             'xmax': xInfomax}
 
 
 def PI(yBest, mu, sd, domain, ksi):
@@ -79,15 +90,18 @@ def PI(yBest, mu, sd, domain, ksi):
             'xmax': xpimax}
 
 
-def EI(yBest, mu, sd, domain):
+def EI(yBest, mu, sd, domain, return_whole_domain=False):
     Z = (mu - yBest) / sd
     EI = (mu - yBest) * norm.cdf(Z) + sd * norm.pdf(Z)
     ieimax = EI.argmax()
     eimax = EI.max()
     xeimax = domain[ieimax]
-    return {'imax': ieimax,
-            'fmax': eimax,
-            'xmax': xeimax}
+    out = {'imax': ieimax,
+           'fmax': eimax,
+           'xmax': xeimax}
+    if return_whole_domain:
+        out['fall'] = EI
+    return out
 
 
 def GPUCB(mu, sd, domain, t, v=1., delta=0.1):

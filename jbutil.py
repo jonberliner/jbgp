@@ -2,6 +2,35 @@ from itertools import chain
 from datetime import datetime
 from matplotlib.pyplot import get_cmap
 from numpy import asarray, prod, zeros, repeat
+from numpy.random import binomial
+from pandas import DataFrame, read_pickle
+from glob import glob
+import pdb
+
+
+def stitch_pickled(critstring):
+    """load all files that match criteria of critstring, unpickle, and convert
+       into pandas DataFrame"""
+    assert (critstring[-4:] == '.pkl' or critsting[-7:] =='.pickle'),\
+            'critsting must end in pickle extension'
+    subpkls = glob(critstring)
+    subfits = [read_pickle(subpkl) for subpkl in subpkls]
+    stitched_df = DataFrame(subfits)
+    return stitched_df
+
+
+def merge_first(to, frm, field, on):
+    assert isinstance(to, DataFrame)
+    assert isinstance(frm, DataFrame)
+    assert isinstance(field, str)
+    assert isinstance(on, str)
+
+    to.set_index(on, inplace=True)
+    ids = to.index.unique()
+    for id in ids:
+        to.loc[id, field] = frm[frm[on]==id][field].iat[0]
+    to.reset_index(inplace=True)
+    return to
 
 
 def datetimestamp(delim='_'):
@@ -89,3 +118,25 @@ def rank(array, descending=True):
     order = array.argsort()
     if descending: order = order[::-1]
     return order.argsort()
+
+
+def bestrun(array, desired=1):
+    """return the longest run of elt 'desired' in array 'array'"""
+    ibestrun = -1
+    bestrun = 0
+    irun = 0
+    run = 0
+    for ielt, elt in enumerate(array):
+        # count this run
+        if elt == desired:
+            run += 1
+        else:
+            run = 0
+            irun = ielt
+        # see if best run
+        if run > bestrun:
+            bestrun = run
+            ibestrun = irun
+    return (bestrun, ibestrun)
+
+
